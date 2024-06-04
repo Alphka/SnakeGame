@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Jogo da cobrinha</title>
+		<meta name="description" content="Jogo da cobrinha desenvolvido usando HTML, CSS e JavaScript">
+		<meta name="color-scheme" content="dark">
+		<meta name="theme-color" content="#242424">
+		<meta name="application-name" content="Jogo da cobrinha">
+		<meta name="author" content="Kayo Souza">
+		<meta name="darkreader-lock">
+		<link rel="preload" href="script.js" fetchpriority="high" as="script">
+		<link href="style.css" rel="stylesheet">
+	</head>
+
+	<body>
+		<main>
+			<header>
+				<p aria-live="polite" aria-atomic="true">Pontuação: <span class="score">0</span></p>
+			</header>
+
+			<div style="position: relative">
+				<div id="menu" aria-hidden hidden>
+					<h2 lang="en">Game over</h2>
+
+					<div class="scores">
+						<p aria-live="polite" aria-atomic="true">Pontuação final: <span class="score final">0</span></p>
+						<p aria-live="polite" aria-atomic="true">Maior pontuação: <span class="score highest">0</span></p>
+					</div>
+
+					<button type="button">
+						<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+							<rect fill="none" height="24" width="24" />
+							<path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8 S16.41,20,12,20z M9.5,16.5l7-4.5l-7-4.5V16.5z" />
+						</svg>
+
+						<span>Jogar novamente</span>
+					</button>
+				</div>
+
+				<canvas></canvas>
+			</div>
+		</main>
+
+		<script src="script.js"></script>
+	</body>
+</html>
