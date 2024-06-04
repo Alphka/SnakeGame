@@ -18,14 +18,12 @@ class Snake {
 		this.context = context
 		this.squareSize = squareSize
 
-		const defaultSnake = /** @type {{ x: number; y: number }[]} */ ([
+		this.positions = /** @type {{ x: number; y: number }[]} */ ([
 			{ x: squareSize * 1, y: squareSize * 2 },
 			{ x: squareSize * 2, y: squareSize * 2 },
 			{ x: squareSize * 3, y: squareSize * 2 },
 			{ x: squareSize * 4, y: squareSize * 2 }
 		])
-
-		this.positions = defaultSnake.slice()
 	}
 
 	Draw(){
@@ -93,13 +91,13 @@ class Food {
 	 * @param {CanvasRenderingContext2D} context
 	 * @param {number} width
 	 * @param {number} height
-	 * @param {number} size
+	 * @param {number} squareSize
 	 */
-	constructor(context, width, height, size){
+	constructor(context, width, height, squareSize){
 		this.context = context
 		this.width = width
 		this.height = height
-		this.size = size
+		this.squareSize = squareSize
 	}
 
 	/** @param {Snake["positions"]} snakePositions */
@@ -109,20 +107,25 @@ class Food {
 	}
 
 	Draw(){
-		const { context, color, size, x, y } = this
+		const { context, color, squareSize, x, y } = this
 
 		context.fillStyle = color
-		context.fillRect(x, y, size, size)
+		context.fillRect(x, y, squareSize, squareSize)
 	}
 
 	/** @param {Snake["positions"]} snakePositions */
 	SetPosition(snakePositions){
-		const { width, height, size } = this
+		const { width, height, squareSize } = this
 
-		const x = this.x = Math.round(randomNumber(0, width - size) / 30) * 30
-		const y = this.y = Math.round(randomNumber(0, height - size) / 30) * 30
+		const x = this.x = Math.round(randomNumber(0, width - squareSize) / squareSize) * squareSize
+		const y = this.y = Math.round(randomNumber(0, height - squareSize) / squareSize) * squareSize
 
-		if(snakePositions.some(position => position.x === x && position.y === y)) this.SetPosition(snakePositions)
+		for(const position of snakePositions){
+			if(position.x === x && position.y === y){
+				this.SetPosition(snakePositions)
+				break
+			}
+		}
 	}
 }
 
@@ -151,9 +154,9 @@ class Game {
 		else{
 			const size = squareSize * Math.min(
 				// Size by window width
-				clamp(5, Math.round(self.innerWidth / 30) - 1, 30),
+				clamp(5, Math.round(self.innerWidth / squareSize) - 1, squareSize),
 				// Size by window height
-				clamp(5, Math.round(.75 * self.innerHeight / 30), 30)
+				clamp(5, Math.round(.75 * self.innerHeight / squareSize), squareSize)
 			)
 
 			width = height = canvas.width = canvas.height = size
@@ -182,7 +185,7 @@ class Game {
 					const { positions, oldDirection } = this.snake
 
 					if(positions.length === 1 || oldDirection !== "left"){
-						snake.direction = "right"
+						this.snake.direction = "right"
 					}
 				}
 				break
@@ -190,7 +193,7 @@ class Game {
 					const { positions, oldDirection } = this.snake
 
 					if(positions.length === 1 || oldDirection !== "right"){
-						snake.direction = "left"
+						this.snake.direction = "left"
 					}
 				}
 				break
@@ -198,7 +201,7 @@ class Game {
 					const { positions, oldDirection } = this.snake
 
 					if(positions.length === 1 || oldDirection !== "down"){
-						snake.direction = "up"
+						this.snake.direction = "up"
 					}
 				}
 				break
@@ -206,7 +209,7 @@ class Game {
 					const { positions, oldDirection } = this.snake
 
 					if(positions.length === 1 || oldDirection !== "up"){
-						snake.direction = "down"
+						this.snake.direction = "down"
 					}
 				}
 				break
@@ -225,23 +228,22 @@ class Game {
 	}
 
 	Start(){
-		if(!this.started) this.started = true
+		this.started = true
 
-		const { context, snake, food, width, height, interval: delay } = this
+		const { context, snake, food, width, height, interval } = this
 
 		snake.Move()
 
 		if(this.CheckCollision()) return this.GameOver()
 
 		context.clearRect(0, 0, width, height)
-
 		this.CheckExtreme()
 		this.CheckEat()
 		food.Draw()
 		snake.Draw()
 		this.DrawGrid()
 
-		setTimeout(this.Start.bind(this), delay)
+		setTimeout(this.Start.bind(this), interval)
 	}
 
 	CheckEat(){
@@ -297,18 +299,17 @@ class Game {
 		const snake = this.snake = new Snake(context, squareSize)
 		const food = this.food = new Food(context, width, height, squareSize)
 
+		context.clearRect(0, 0, width, height)
+		food.New(snake.positions)
+		food.Draw()
+		snake.Draw()
+		this.DrawGrid()
+
 		menu.hidden = true
 		menu.ariaHidden = "true"
 		score.innerText = finalScore.innerText = "0"
 		canvas.classList.remove("blur")
 
-		food.New(snake.positions)
-
-		context.clearRect(0, 0, width, height)
-
-		food.Draw()
-		snake.Draw()
-		this.DrawGrid()
 		this.started = false
 	}
 
@@ -318,7 +319,7 @@ class Game {
 		context.lineWidth = 1
 		context.strokeStyle = "#444"
 
-		for(let i = squareSize; i < width; i += 30){
+		for(let i = squareSize; i < width; i += squareSize){
 			context.beginPath()
 			context.lineTo(i, 0)
 			context.lineTo(i, height)
@@ -332,4 +333,4 @@ class Game {
 	}
 }
 
-new Game(100)
+new Game(100, 30)
